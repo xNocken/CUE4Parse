@@ -54,6 +54,8 @@ namespace CUE4Parse.FileProvider
             {
                 _files.AddFiles(osFiles);
             }
+
+            LoadVirtualPaths();
         }
 
         private void RegisterFile(string file, Stream[] stream = null!, Func<string, FArchive>? openContainerStreamFunc = null)

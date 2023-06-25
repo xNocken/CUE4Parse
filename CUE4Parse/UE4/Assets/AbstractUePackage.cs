@@ -151,6 +151,7 @@ namespace CUE4Parse.UE4.Assets
         public abstract ResolvedObject? ResolvePackageIndex(FPackageIndex? index);
 
         public override string ToString() => Name;
+        public abstract List<UObject> GetExportsByType(string type, StringComparison comparisonType = StringComparison.Ordinal);
     }
 
     [JsonConverter(typeof(ResolvedObjectConverter))]

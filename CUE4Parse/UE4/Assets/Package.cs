@@ -170,6 +170,15 @@ namespace CUE4Parse.UE4.Assets
             }
         }
 
+        public override List<UObject> GetExportsByType(string type, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            var list = new List<UObject>();
+
+            // TODO: implement
+
+            return list;
+        }
+
         public override ResolvedObject? ResolvePackageIndex(FPackageIndex? index)
         {
             if (index == null || index.IsNull)

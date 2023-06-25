@@ -314,6 +314,30 @@ namespace CUE4Parse.UE4.Assets
             return null;
         }
 
+        public override List<UObject> GetExportsByType(string name, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            var list = new List<UObject>();
+
+            for (var i = 0; i < ExportMap.Length; i++)
+            {
+                var export = ExportMap[i];
+
+                var theClass = ResolveObjectIndex(export.ClassIndex);
+
+                if (theClass == null) 
+                {
+                    continue;
+                }
+
+                if (theClass.Name.Text.StartsWith(name, comparisonType))
+                {
+                    list.Add(ExportsLazy[i].Value);
+                }
+            }
+
+            return list;
+        }
+
         public override ResolvedObject? ResolvePackageIndex(FPackageIndex? index)
         {
             if (index == null || index.IsNull)

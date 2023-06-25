@@ -93,6 +93,25 @@ namespace CUE4Parse.UE4.Assets.Objects
             }
         }
 
+        public object? GetValue()
+        {
+            switch (this)
+            {
+                case FPropertyTagType<UScriptStruct> structProp:
+                    return structProp.Value.StructType;
+                case FPropertyTagType<FPackageIndex> objProp:
+                    if (objProp.Value.TryLoad(out var objExport))
+                        return objExport;
+                    return null;
+                case FPropertyTagType<FSoftObjectPath> softObjProp:
+                    if (softObjProp.Value.TryLoad(out var softExport))
+                        return softExport;
+                    return null;
+                default:
+                    return GenericValue;
+            }
+        }
+
         public abstract override string ToString();
 
         internal static FPropertyTagType? ReadPropertyTagType(FAssetArchive Ar, string propertyType, FPropertyTagData? tagData, ReadType type)

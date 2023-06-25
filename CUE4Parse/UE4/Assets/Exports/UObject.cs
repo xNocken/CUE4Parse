@@ -312,6 +312,9 @@ namespace CUE4Parse.UE4.Assets.Exports
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetOrDefault<T>(string name, T defaultValue = default, StringComparison comparisonType = StringComparison.Ordinal) =>
+            PropertyUtil.GetOrDefault<T>(this, name, defaultValue, comparisonType);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public object? GetOrDefault(string name, object? defaultValue = default, StringComparison comparisonType = StringComparison.Ordinal) =>
             PropertyUtil.GetOrDefault(this, name, defaultValue, comparisonType);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Lazy<T> GetOrDefaultLazy<T>(string name, T defaultValue = default, StringComparison comparisonType = StringComparison.Ordinal) =>
@@ -334,6 +337,20 @@ namespace CUE4Parse.UE4.Assets.Exports
                     obj = ret;
                     return true;
                 }
+            }
+
+            obj = default;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetValue(out object? obj, params string[] names)
+        {
+            foreach (string name in names)
+            {
+                obj = GetOrDefault(name, comparisonType: StringComparison.OrdinalIgnoreCase);
+
+                return obj != null;
             }
 
             obj = default;
@@ -429,6 +446,21 @@ namespace CUE4Parse.UE4.Assets.Exports
                     var value = prop.Tag?.GetValue(typeof(T));
                     if (value is T cast)
                         return cast;
+                }
+            }
+
+            return defaultValue;
+        }
+
+        public static object? GetOrDefault(IPropertyHolder holder, string name, object? defaultValue = null, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            foreach (var prop in holder.Properties)
+            {
+                if (prop.Name.Text.Equals(name, comparisonType))
+                {
+                    var value = prop.Tag?.GetValue();
+
+                    return value;
                 }
             }
 

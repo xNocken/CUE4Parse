@@ -34,6 +34,11 @@ namespace CUE4Parse.UE4.Assets.Objects
     public abstract class FPropertyTagType
     {
         public abstract object? GenericValue { get; }
+        public T? GetValue<T>() 
+        {
+            return (T?)GetValue(typeof(T));
+        }
+
         public object? GetValue(Type type)
         {
             var generic = GenericValue;

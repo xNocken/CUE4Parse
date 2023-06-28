@@ -817,12 +817,17 @@ namespace CUE4Parse.FileProvider
 
         public List<UObject> FindObjectsByType(string type, string subFolder = "")
         {
+            return FindObjectsByType<UObject>(type, subFolder);
+        }
+
+        public List<T> FindObjectsByType<T>(string type, string subFolder = "") where T : UObject
+        {
             if (MappingsContainer?.MappingsForGame == null)
             {
                 throw new Exception("Mappings provider is null");
             }
 
-            var result = new List<UObject>();
+            var result = new List<T>();
 
             if (_assetRegistry == null)
             {
@@ -831,7 +836,7 @@ namespace CUE4Parse.FileProvider
                 if (assetReader == null)
                 {
                     Log.Error("Failed to load AssetRegistry.bin");
-                    
+
                     return result;
                 }
 
@@ -861,7 +866,7 @@ namespace CUE4Parse.FileProvider
                         continue;
                     }
 
-                    if (!TryLoadObject(fixedPath, out var uobject))
+                    if (!TryLoadObject<T>(fixedPath, out var uobject))
                     {
                         break;
                     }

@@ -770,6 +770,11 @@ namespace CUE4Parse.FileProvider
                 packagePath = packagePath.Substring(0, dotIndex);
             }
 
+            if (GameFile.Ue4PackageExtensions.Contains(objectName))
+            {
+                objectName = packagePath.SubstringAfterLast('/');
+            }
+
             var pkg = await TryLoadPackageAsync(packagePath).ConfigureAwait(false);
             return pkg?.GetExportOrNull(objectName, IsCaseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         }

@@ -814,13 +814,21 @@ namespace CUE4Parse.FileProvider
         }
 
         #endregion
-
         public List<UObject> FindObjectsByType(string type, string subFolder = "")
         {
             return FindObjectsByType<UObject>(type, subFolder);
         }
+        public List<UObject> FindObjectsByType<T>(string type, string subFolder = "") where T : UObject
+        {
+            return FindObjectsByType<T>(type, subFolder);
+        }
 
-        public List<T> FindObjectsByType<T>(string type, string subFolder = "") where T : UObject
+        public Task<List<UObject>> FindObjectsByTypeAsync(string type, string subFolder = "")
+        {
+            return FindObjectsByTypeAsync<UObject>(type, subFolder);
+        }
+
+        public async Task<List<T>> FindObjectsByTypeAsync<T>(string type, string subFolder = "") where T : UObject
         {
             if (MappingsContainer?.MappingsForGame == null)
             {
@@ -866,12 +874,20 @@ namespace CUE4Parse.FileProvider
                         continue;
                     }
 
-                    if (!TryLoadObject<T>(fixedPath, out var uobject))
+                    try
                     {
-                        break;
-                    }
+                        var uobject = await LoadObjectAsync<T>(fixedPath);
 
-                    result.Add(uobject);
+                        if (uobject == null)
+                        {
+                            break;
+                        }
+
+                        result.Add(uobject);
+                    } catch (Exception ex)
+                    {
+                        Log.Error(ex, "Failed to load object {0}", fixedPath);
+                    }
 
                     break;
                 }

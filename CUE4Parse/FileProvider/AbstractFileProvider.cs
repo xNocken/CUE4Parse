@@ -103,8 +103,8 @@ namespace CUE4Parse.FileProvider
             }
         }
 
-        private string _internalGameName;
-        public virtual string InternalGameName
+        private string? _internalGameName;
+        public string InternalGameName
         {
             get
             {

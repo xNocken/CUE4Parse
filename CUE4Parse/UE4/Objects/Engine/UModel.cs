@@ -321,6 +321,9 @@ namespace CUE4Parse.UE4.Objects.Engine
             writer.WritePropertyName("Surfs");
             serializer.Serialize(writer, Surfs);
 
+            writer.WritePropertyName("Verts");
+            serializer.Serialize(writer, Verts);
+
             writer.WritePropertyName("NumSharedSides");
             serializer.Serialize(writer, NumSharedSides);
 

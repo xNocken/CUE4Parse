@@ -43,8 +43,6 @@ namespace CUE4Parse.FileProvider
             {
                 _files.AddFiles(osFiles);
             }
-
-            LoadVirtualPaths();
         }
 
         private Dictionary<string, GameFile> IterateFiles(DirectoryInfo directory, SearchOption option)

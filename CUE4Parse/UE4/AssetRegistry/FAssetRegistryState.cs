@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CUE4Parse.UE4.AssetRegistry.Objects;
 using CUE4Parse.UE4.AssetRegistry.Readers;
 using CUE4Parse.UE4.Readers;
@@ -99,6 +100,18 @@ namespace CUE4Parse.UE4.AssetRegistry
             {
                 dependsNode.SerializeLoad(Ar, PreallocatedDependsNodeDataBuffers);
             }
+        }
+    
+        public FAssetData[] GetByAssetClass(string assetClass) {
+            var result = new List<FAssetData>();
+
+            foreach (var assetData in PreallocatedAssetDataBuffers) {
+                if (assetData.AssetClass.Text == assetClass) {
+                    result.Add(assetData);
+                }
+            }
+
+            return result.ToArray();
         }
     }
 }

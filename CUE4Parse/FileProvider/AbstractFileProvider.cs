@@ -821,11 +821,11 @@ namespace CUE4Parse.FileProvider
         #endregion
         public List<UObject> FindObjectsByType(string type, string subFolder = "")
         {
-            return FindObjectsByType<UObject>(type, subFolder);
+            return FindObjectsByTypeAsync<UObject>(type, subFolder).Result;
         }
-        public List<UObject> FindObjectsByType<T>(string type, string subFolder = "") where T : UObject
+        public List<T> FindObjectsByType<T>(string type, string subFolder = "") where T : UObject
         {
-            return FindObjectsByType<T>(type, subFolder);
+            return FindObjectsByTypeAsync<T>(type, subFolder).Result.ToList<T>();
         }
 
         public Task<List<UObject>> FindObjectsByTypeAsync(string type, string subFolder = "")
@@ -840,21 +840,9 @@ namespace CUE4Parse.FileProvider
                 throw new Exception("Mappings provider is null");
             }
 
+            GetAssetRegistry();
+
             var result = new List<T>();
-
-            if (_assetRegistry == null)
-            {
-                var assetReader = this.CreateReader($"{InternalGameName}/AssetRegistry.bin");
-
-                if (assetReader == null)
-                {
-                    Log.Error("Failed to load AssetRegistry.bin");
-
-                    return result;
-                }
-
-                _assetRegistry = new FAssetRegistryState(assetReader);
-            }
 
             foreach (var asset in _assetRegistry.PreallocatedAssetDataBuffers)
             {
@@ -864,6 +852,8 @@ namespace CUE4Parse.FileProvider
                 {
                     continue;
                 }
+
+                fixedPath += $".{asset.ObjectPath.Split('.').Last()}";
 
                 if (!MappingsContainer.MappingsForGame.Types.TryGetValue(asset.AssetClass.Text, out var assetClass))
                 {
@@ -899,6 +889,27 @@ namespace CUE4Parse.FileProvider
             }
 
             return result;
+        }
+
+        public FAssetRegistryState? GetAssetRegistry()
+        {
+            if (_assetRegistry != null)
+            {
+                return _assetRegistry;
+            }
+
+            var assetReader = this.CreateReader($"{InternalGameName}/AssetRegistry.bin");
+
+            if (assetReader == null)
+            {
+                Log.Error("Failed to load AssetRegistry.bin");
+
+                return null;
+            }
+
+            _assetRegistry = new FAssetRegistryState(assetReader);
+
+            return _assetRegistry;
         }
     }
 }

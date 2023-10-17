@@ -33,6 +33,11 @@ namespace CUE4Parse.UE4.Assets.Readers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override FName ReadFName()
         {
+            if (!CanReadBytes(sizeof(int) * 2))
+            {
+                throw new ParserException(this, $"Failed to read FName, not enough bytes left to read {sizeof(int) * 2} bytes");
+            }
+            
             var nameIndex = Read<int>();
             var extraIndex = Read<int>();
 #if !NO_FNAME_VALIDATION

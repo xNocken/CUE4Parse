@@ -340,5 +340,11 @@ namespace CUE4Parse.FileProvider
         /// <param name="subFolder">The subfolder to search in</param>
         /// <returns>All matching objects</returns>
         public List<UObject> FindObjectsByType(string type, string subFolder = "");
+        /// <summary>
+        /// Asynchronusly loads all objects from the Package at the passed path
+        /// </summary>
+        /// <param name="packagePath">The package path</param>
+        /// <returns>All objects of the package</returns>
+        public Task<IEnumerable<UObject>> LoadAllObjectsAsync(string? packagePath);
     }
 }

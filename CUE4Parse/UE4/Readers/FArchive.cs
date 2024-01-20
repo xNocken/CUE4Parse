@@ -114,6 +114,10 @@ namespace CUE4Parse.UE4.Readers
         public virtual T[] ReadArray<T>(Func<T> getter)
         {
             var length = Read<int>();
+
+            // if (!CanReadBytes(length * Unsafe.SizeOf<T>()))
+            //     throw new ParserException($"Cannot read {length} elements of type {typeof(T).Name} from {Name}");
+                
             return ReadArray(length, getter);
         }
 
@@ -277,6 +281,9 @@ namespace CUE4Parse.UE4.Readers
         {
             // > 0 for ANSICHAR, < 0 for UCS2CHAR serialization
             var length = Read<int>();
+
+            if (!CanReadBytes(length))
+                throw new ParserException(this, $"Invalid FString length '{length}'");
 
             if (length == int.MinValue)
                 throw new ArgumentOutOfRangeException(nameof(length), "Archive is corrupted");
@@ -496,6 +503,11 @@ namespace CUE4Parse.UE4.Readers
         private struct FCompressedChunkInfo
         {
             public long CompressedSize, UncompressedSize;
+        }
+
+        public bool CanReadBytes(int count)
+        {
+            return Position + count <= Length;
         }
     }
 }

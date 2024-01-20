@@ -11,7 +11,7 @@ public readonly struct FMaterialOverrideNanite : IUStruct
 {
     public readonly FSoftObjectPath OverrideMaterialRef;
     public readonly bool bEnableOverride;
-    public readonly FPackageIndex? OverrideMaterial;
+    public readonly FPackageIndex? OverrideMaterial = null;
 
     public FMaterialOverrideNanite(FStructFallback fallback)
     {

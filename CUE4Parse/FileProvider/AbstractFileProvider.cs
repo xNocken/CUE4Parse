@@ -82,7 +82,7 @@ namespace CUE4Parse.FileProvider
                                     }
                                 }
                             }
-                            else if (!string.IsNullOrWhiteSpace(g.Value))
+                            else if (!string.IsNullOrWhiteSpace(g.Value) && g.Value != "{GameName}")
                             {
                                 _gameDisplayName = g.Value;
                             }

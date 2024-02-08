@@ -3,9 +3,9 @@ using Newtonsoft.Json;
 
 namespace CUE4Parse.UE4.Wwise.Objects
 {
-    public class HierarchyDialogueEvent : AbstractHierarchy
+    public class HierarchySwitchContainer : AbstractHierarchy
     {
-        public HierarchyDialogueEvent(FArchive Ar) : base(Ar)
+        public HierarchySwitchContainer(FArchive Ar) : base(Ar)
         {
 
         }

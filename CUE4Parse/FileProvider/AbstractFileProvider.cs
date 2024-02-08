@@ -865,7 +865,7 @@ namespace CUE4Parse.FileProvider
                 {
                     if (assetClass.Name != type)
                     {
-                        if (checkedClassess.Contains(assetClass.Super.Value.Name))
+                        if (checkedClassess.Contains(assetClass.Super?.Value?.Name ?? ""))
                         {
                             break;
                         }

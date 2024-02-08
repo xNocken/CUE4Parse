@@ -956,30 +956,26 @@ public class UScriptMapConverter : JsonConverter<UScriptMap>
 {
     public override void WriteJson(JsonWriter writer, UScriptMap value, JsonSerializer serializer)
     {
-        writer.WriteStartArray();
+        writer.WriteStartObject();
 
         foreach (var kvp in value.Properties)
         {
             switch (kvp.Key)
             {
                 case StructProperty:
-                    writer.WriteStartObject();
                     writer.WritePropertyName("Key");
                     serializer.Serialize(writer, kvp.Key);
                     writer.WritePropertyName("Value");
                     serializer.Serialize(writer, kvp.Value);
-                    writer.WriteEndObject();
                     break;
                 default:
-                    writer.WriteStartObject();
                     writer.WritePropertyName(kvp.Key.ToString().SubstringBefore('(').Trim());
                     serializer.Serialize(writer, kvp.Value);
-                    writer.WriteEndObject();
                     break;
             }
         }
 
-        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     public override UScriptMap ReadJson(JsonReader reader, Type objectType, UScriptMap existingValue, bool hasExistingValue,
@@ -1176,8 +1172,8 @@ public class WwiseConverter : JsonConverter<WwiseReader>
         writer.WritePropertyName("WemIndexes");
         serializer.Serialize(writer, value.WemIndexes);
 
-        writer.WritePropertyName("Hierarchy");
-        serializer.Serialize(writer, value.Hierarchy);
+        writer.WritePropertyName("Hierarchies");
+        serializer.Serialize(writer, value.Hierarchies);
 
         writer.WritePropertyName("IdToString");
         serializer.Serialize(writer, value.IdToString);

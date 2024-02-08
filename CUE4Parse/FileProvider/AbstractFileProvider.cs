@@ -82,7 +82,7 @@ namespace CUE4Parse.FileProvider
                                     }
                                 }
                             }
-                            else if (!string.IsNullOrWhiteSpace(g.Value))
+                            else if (!string.IsNullOrWhiteSpace(g.Value) && g.Value != "{GameName}")
                             {
                                 _gameDisplayName = g.Value;
                             }
@@ -401,6 +401,11 @@ namespace CUE4Parse.FileProvider
         public virtual string FixPath(string path) => FixPath(path, IsCaseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         public virtual string FixPath(string path, StringComparison comparisonType)
         {
+            if (path.Length == 0)
+            {
+                return String.Empty;
+            }
+
             path = path.Replace('\\', '/');
             if (path[0] == '/')
                 path = path[1..];
@@ -756,6 +761,11 @@ namespace CUE4Parse.FileProvider
                 packagePath = packagePath.Substring(0, dotIndex);
             }
 
+            if (GameFile.Ue4PackageExtensions.Contains(objectName))
+            {
+                objectName = packagePath.SubstringAfterLast('/');
+            }
+
             var pkg = await LoadPackageAsync(packagePath);
             return pkg.GetExport(objectName, IsCaseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         }
@@ -849,10 +859,19 @@ namespace CUE4Parse.FileProvider
                     continue;
                 }
 
+                var checkedClassess = new List<string>();
+
                 while (assetClass != null)
                 {
                     if (assetClass.Name != type)
                     {
+                        if (checkedClassess.Contains(assetClass.Super?.Value?.Name ?? ""))
+                        {
+                            break;
+                        }
+
+                        checkedClassess.Add(assetClass.Name);
+
                         assetClass = assetClass.Super.Value;
 
                         continue;

@@ -72,6 +72,39 @@ namespace CUE4Parse.UE4.Assets.Exports.Engine
             };
         }
 
+        public FRealCurve? FindCurve(string rowName, bool bWarnIfNotFound = true)
+        {
+            if (string.IsNullOrEmpty(rowName))
+            {
+                if (bWarnIfNotFound) Log.Warning("UCurveTable::FindCurve : NAME_None is invalid row name for CurveTable '{0}'.", GetPathName());
+                return null;
+            }
+
+            FStructFallback? foundCurve = null;
+
+            foreach (var (key, value) in RowMap)
+            {
+                if (key.Text == rowName)
+                {
+                    foundCurve = value;
+                    break;
+                }
+            }
+
+            if (foundCurve == null)
+            {
+                if (bWarnIfNotFound) Log.Warning("UCurveTable::FindCurve : Row '{0}' not found in CurveTable '{1}'.", rowName, GetPathName());
+                return null;
+            }
+
+            return CurveTableMode switch
+            {
+                ECurveTableMode.SimpleCurves => new FSimpleCurve(foundCurve),
+                ECurveTableMode.RichCurves => new FRichCurve(foundCurve),
+                _ => null
+            };
+        }
+
         public bool TryFindCurve(FName rowName, out FRealCurve outCurve, bool bWarnIfNotFound = true)
         {
             if (rowName.IsNone)

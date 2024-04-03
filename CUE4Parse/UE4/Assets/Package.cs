@@ -174,7 +174,22 @@ namespace CUE4Parse.UE4.Assets
         {
             var list = new List<UObject>();
 
-            // TODO: implement
+            for (var i = 0; i < ExportMap.Length; i++)
+            {
+                var export = ExportMap[i];
+
+                var theClass = ResolvePackageIndex(export.ClassIndex);
+
+                if (theClass == null) 
+                {
+                    continue;
+                }
+
+                if (theClass.Name.Text.StartsWith(type, comparisonType))
+                {
+                    list.Add(ExportsLazy[i].Value);
+                }
+            }
 
             return list;
         }
@@ -251,6 +266,39 @@ namespace CUE4Parse.UE4.Assets
             Log.Fatal("Missing import of ({0}): {1} in {2} was not found, but the package exists.", Name, import.ObjectName, importPackage.GetFullName());
 #endif
             return new ResolvedImportObject(import, this);
+        }
+
+        public override UObject? GetExportOwnedBy(string name, UObject owner, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            for (var i = 0; i < ExportMap.Length; i++)
+            {
+                var export = ExportMap[i];
+
+                var mappedName = export.ObjectName.Text;
+
+                if (!mappedName.Equals(name, comparisonType))
+                {
+                    continue;
+                }
+
+                var outerIndex = ResolvePackageIndex(export.OuterIndex);
+
+                if (outerIndex == null)
+                {
+                    continue;
+                }
+
+                var outer = outerIndex.Load();
+
+                if (outer != owner)
+                {
+                    continue;
+                }
+
+                return ExportsLazy[i].Value;
+            }
+
+            return null;
         }
 
         private class ResolvedExportObject : ResolvedObject

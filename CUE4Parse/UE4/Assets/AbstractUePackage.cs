@@ -57,6 +57,68 @@ namespace CUE4Parse.UE4.Assets
             return obj;
         }
 
+        protected UObject ConstructObjectNew(UStruct? struc)
+        {
+            UObject? obj = null;
+            var current = struc;
+            var lastAvailable = current;
+
+            while (current != null) // Traverse up until a known one is found
+            {
+                if (current is UClass scriptClass)
+                {
+                    lastAvailable = current;
+
+                    // We know this is a class defined in code at this point
+                    obj = scriptClass.ConstructObject();
+                    if (obj != null)
+                        break;
+                }
+
+                current = current.SuperStruct?.Load<UStruct>();
+            }
+
+            if (obj == null && lastAvailable != null)
+            {
+                Struct? theCurrent = Mappings!.Types!.GetValueOrDefault(lastAvailable.Name);
+
+                while (theCurrent != null) // Traverse up until a known one is found
+                {
+                    var type = ObjectTypeRegistry.Get(theCurrent.Name);
+
+                    if (type != null)
+                    {
+                        try
+                        {
+                            var instance = Activator.CreateInstance(type);
+
+                            if (instance is Assets.Exports.UObject objj)
+                            {
+                                obj = objj;
+
+                                break;
+                            }
+                            else
+                            {
+                                Log.Warning("Class {Type} did have a valid constructor but does not inherit UObject", type);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Warning(e, "Class {Type} could not be constructed", type);
+                        }
+                    }
+
+                    theCurrent = theCurrent?.Super?.Value;
+                }
+            }
+
+            obj ??= new UObject();
+            obj.Class = struc;
+            obj.Flags |= EObjectFlags.RF_WasLoaded;
+            return obj;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static void DeserializeObject(UObject obj, FAssetArchive Ar, long serialSize)
         {
@@ -152,6 +214,8 @@ namespace CUE4Parse.UE4.Assets
 
         public override string ToString() => Name;
         public abstract List<UObject> GetExportsByType(string type, StringComparison comparisonType = StringComparison.Ordinal);
+
+        public abstract UObject? GetExportOwnedBy(string name, UObject owner, StringComparison comparisonType = StringComparison.Ordinal);
     }
 
     [JsonConverter(typeof(ResolvedObjectConverter))]

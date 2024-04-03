@@ -420,6 +420,39 @@ namespace CUE4Parse.UE4.Assets
             return null;
         }
 
+        public override UObject? GetExportOwnedBy(string name, UObject owner, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            for (var i = 0; i < ExportMap.Length; i++)
+            {
+                var export = ExportMap[i];
+
+                var fname = CreateFNameFromMappedName(export.ObjectName).Text;
+
+                if (!fname.Equals(name, comparisonType))
+                {
+                    continue;
+                }
+
+                var outerIndex = ResolveObjectIndex(export.OuterIndex);
+
+                if (outerIndex == null)
+                {
+                    continue;
+                }
+
+                var outer = outerIndex.Load();
+
+                if (outer != owner)
+                {
+                    continue;
+                }
+
+                return ExportsLazy[i].Value;
+            }
+
+            return null;
+        }
+
         private class ResolvedExportObject : ResolvedObject
         {
             public FExportMapEntry ExportMapEntry;

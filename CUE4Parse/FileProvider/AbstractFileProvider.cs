@@ -851,7 +851,10 @@ namespace CUE4Parse.FileProvider
                     continue;
                 }
 
-                fixedPath += $".{asset.ObjectPath.Split('.').Last()}";
+                if (fixedPath.IndexOf('.') == -1)
+                {
+                    fixedPath += $".{asset.ObjectPath.Split('.').Last()}";
+                }
 
                 if (!MappingsContainer.MappingsForGame.Types.TryGetValue(asset.AssetClass.Text, out var assetClass))
                 {
@@ -871,7 +874,7 @@ namespace CUE4Parse.FileProvider
 
                         checkedClassess.Add(assetClass.Name);
 
-                        assetClass = assetClass.Super.Value;
+                        assetClass = assetClass.Super?.Value;
 
                         continue;
                     }
@@ -886,7 +889,8 @@ namespace CUE4Parse.FileProvider
                         }
 
                         result.Add(uobject);
-                    } catch (Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         Log.Error(ex, "Failed to load object {0}", fixedPath);
                     }
@@ -905,7 +909,7 @@ namespace CUE4Parse.FileProvider
                 return _assetRegistry;
             }
 
-            var assetReader = this.CreateReader($"{InternalGameName}/AssetRegistry.bin");
+            var assetReader = CreateReader($"{InternalGameName}/AssetRegistry.bin");
 
             if (assetReader == null)
             {

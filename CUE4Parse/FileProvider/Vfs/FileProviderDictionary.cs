@@ -88,6 +88,8 @@ namespace CUE4Parse.FileProvider.Vfs
                     return file;
                 if (TryGetValue(path.SubstringBeforeWithLast('.') + GameFile.Ue4PackageExtensions[1], out file))
                     return file;
+                if (TryGetValue(path.SubstringBeforeWithLast('.') + "." + GameFile.Ue4PackageExtensions[1], out file))
+                    return file;
 
                 throw new KeyNotFoundException($"There is no game file with the path \"{path}\"");
             }

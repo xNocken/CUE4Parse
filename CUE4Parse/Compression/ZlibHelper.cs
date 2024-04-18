@@ -27,7 +27,14 @@ public static class ZlibHelper
 
     public static void Initialize(string path)
     {
-        Instance ??= new Zlibng(path);
+        Instance?.Dispose();
+        Instance = new Zlibng(path);
+    }
+
+    public static void Initialize(Zlibng instance)
+    {
+        Instance?.Dispose();
+        Instance = instance;
     }
 
     public static bool DownloadDll(string? path = null, string? url = null)

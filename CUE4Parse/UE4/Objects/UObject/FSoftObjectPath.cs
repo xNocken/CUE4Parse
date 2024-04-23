@@ -159,6 +159,13 @@ namespace CUE4Parse.UE4.Objects.UObject
                 packagePath = packagePath.SubstringBeforeLast('.');
             }
 
+            if (packagePath.StartsWith("/Script/"))
+            {
+                // This class is a c++ class in the exe that we dont parse
+                export = default;
+                return false;
+            }
+
             var package = provider.LoadPackage(packagePath);
 
             export = package.GetExport(subPathParts[0]);

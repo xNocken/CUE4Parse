@@ -116,7 +116,7 @@ public struct FGameplayTag
     }
 
     public static bool operator ==(FGameplayTag a, FGameplayTag b) {
-        return a.TagName == b.TagName;
+        return a.TagName.PlainText == b.TagName.PlainText;
     }
 
     public static bool operator !=(FGameplayTag a, FGameplayTag b)

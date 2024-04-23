@@ -76,7 +76,7 @@ namespace CUE4Parse.UE4.Objects.UObject
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(FName a, uint b) => a.Index != b;
 
-        public override bool Equals(object? obj) => obj is FName other && this == other;
+        public override bool Equals(object? obj) => obj is FName other && PlainText == other.PlainText;
 
         public override int GetHashCode() => ComparisonMethod == FNameComparisonMethod.Text ? StringComparer.OrdinalIgnoreCase.GetHashCode(Text.GetHashCode()) : HashCode.Combine(Index, Number);
 

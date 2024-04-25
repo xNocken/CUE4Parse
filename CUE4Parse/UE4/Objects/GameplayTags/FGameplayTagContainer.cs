@@ -35,7 +35,7 @@ public readonly struct FGameplayTagContainer : IUStruct, IEnumerable<FGameplayTa
 
     public bool HasTag(FGameplayTag tagToCheck)
     {
-        return tagToCheck.IsValid() && GameplayTags.Contains(tagToCheck);
+        return tagToCheck.IsValid() && GameplayTags.Any(it => it.TagName.PlainText.ToLower().StartsWith(tagToCheck.TagName.PlainText.ToLower()));
     }
 
     public bool HasAny(FGameplayTagContainer containerToCheck)
@@ -81,7 +81,7 @@ public readonly struct FGameplayTagContainer : IUStruct, IEnumerable<FGameplayTa
     public FName? GetValue(string category) => GameplayTags.FirstOrDefault(it => it.TagName.Text.StartsWith(category)).TagName;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerator<FGameplayTag> GetEnumerator() => ((IEnumerable<FGameplayTag>) GameplayTags).GetEnumerator();
+    public IEnumerator<FGameplayTag> GetEnumerator() => ((IEnumerable<FGameplayTag>)GameplayTags).GetEnumerator();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() => GameplayTags.GetEnumerator();
@@ -115,7 +115,8 @@ public struct FGameplayTag
         return !TagName.IsNone;
     }
 
-    public static bool operator ==(FGameplayTag a, FGameplayTag b) {
+    public static bool operator ==(FGameplayTag a, FGameplayTag b)
+    {
         return a.TagName.PlainText == b.TagName.PlainText;
     }
 
@@ -210,7 +211,7 @@ public class FQueryEvaluator
     {
         CurStreamIdx = 0;
 
-        Version = (EGameplayTagQueryStreamVersion) GetToken();
+        Version = (EGameplayTagQueryStreamVersion)GetToken();
         if (bReadError) return false;
 
         var returnValue = false;
@@ -225,7 +226,7 @@ public class FQueryEvaluator
 
     private bool EvalExpr(FGameplayTagContainer tags, bool skip = false)
     {
-        var exprType = (EGameplayTagQueryExprType) GetToken();
+        var exprType = (EGameplayTagQueryExprType)GetToken();
 
         return exprType switch
         {

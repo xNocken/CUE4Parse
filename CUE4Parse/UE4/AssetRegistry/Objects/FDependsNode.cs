@@ -30,7 +30,7 @@ namespace CUE4Parse.UE4.AssetRegistry.Objects
             _index = index;
         }
 
-        public void SerializeLoad(FAssetRegistryArchive Ar, FDependsNode[] preallocatedDependsNodeDataBuffer)
+        public void SerializeLoad(FAssetRegistryArchive Ar, List<FDependsNode> preallocatedDependsNodeDataBuffer)
         {
             Identifier = new FAssetIdentifier(Ar);
 
@@ -47,7 +47,7 @@ namespace CUE4Parse.UE4.AssetRegistry.Objects
 
                 foreach (var serializeIndex in inDependencies)
                 {
-                    if (serializeIndex < 0 || preallocatedDependsNodeDataBuffer.Length <= serializeIndex)
+                    if (serializeIndex < 0 || preallocatedDependsNodeDataBuffer.Count <= serializeIndex)
                         throw new ParserException($"Index {serializeIndex} doesn't exist in 'PreallocatedDependsNodeDataBuffers'");
                     var dependsNode = preallocatedDependsNodeDataBuffer[serializeIndex];
                     pointerDependencies.Add(dependsNode);
@@ -84,7 +84,7 @@ namespace CUE4Parse.UE4.AssetRegistry.Objects
 
                 foreach (var serializeIndex in inDependencies)
                 {
-                    if (serializeIndex < 0 || preallocatedDependsNodeDataBuffer.Length <= serializeIndex)
+                    if (serializeIndex < 0 || preallocatedDependsNodeDataBuffer.Count <= serializeIndex)
                         throw new ParserException($"Index {serializeIndex} doesn't exist in 'PreallocatedDependsNodeDataBuffers'");
                     var dependsNode = preallocatedDependsNodeDataBuffer[serializeIndex];
                     pointerDependencies.Add(dependsNode);
@@ -110,7 +110,7 @@ namespace CUE4Parse.UE4.AssetRegistry.Objects
             ReadDependenciesNoFlags(ref Referencers);
         }
 
-        public void SerializeLoad_BeforeFlags(FAssetRegistryArchive Ar, FDependsNode[] preallocatedDependsNodeDataBuffer)
+        public void SerializeLoad_BeforeFlags(FAssetRegistryArchive Ar, List<FDependsNode> preallocatedDependsNodeDataBuffer)
         {
             Identifier = new FAssetIdentifier(Ar);
 
@@ -131,7 +131,7 @@ namespace CUE4Parse.UE4.AssetRegistry.Objects
                 for (var dependencyIndex = 0; dependencyIndex < num; ++dependencyIndex)
                 {
                     var index = Ar.Read<int>();
-                    if (index < 0 || index >= preallocatedDependsNodeDataBuffer.Length)
+                    if (index < 0 || index >= preallocatedDependsNodeDataBuffer.Count)
                         throw new ParserException($"Index {index} doesn't exist in 'PreallocatedDependsNodeDataBuffers'");
                     var dependsNode = preallocatedDependsNodeDataBuffer[index];
                     outNodes.Add(dependsNode);

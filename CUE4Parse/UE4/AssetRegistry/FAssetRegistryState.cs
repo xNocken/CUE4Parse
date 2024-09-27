@@ -11,18 +11,18 @@ namespace CUE4Parse.UE4.AssetRegistry
     [JsonConverter(typeof(FAssetRegistryStateConverter))]
     public class FAssetRegistryState
     {
-        public FAssetData[] PreallocatedAssetDataBuffers;
-        public FDependsNode[] PreallocatedDependsNodeDataBuffers;
-        public FAssetPackageData[] PreallocatedPackageDataBuffers;
+        public List<FAssetData> PreallocatedAssetDataBuffers = new();
+        public List<FDependsNode> PreallocatedDependsNodeDataBuffers = new();
+        public List<FAssetPackageData> PreallocatedPackageDataBuffers = new();
 
-        public FAssetRegistryState()
-        {
-            PreallocatedAssetDataBuffers = Array.Empty<FAssetData>();
-            PreallocatedDependsNodeDataBuffers = Array.Empty<FDependsNode>();
-            PreallocatedPackageDataBuffers = Array.Empty<FAssetPackageData>();
-        }
+        public FAssetRegistryState() { }
 
         public FAssetRegistryState(FArchive Ar) : this()
+        {
+            Parse(Ar);
+        }
+
+        public void Parse(FArchive Ar)
         {
             var header = new FAssetRegistryHeader(Ar);
             var version = header.Version;
@@ -32,23 +32,23 @@ namespace CUE4Parse.UE4.AssetRegistry
                     Log.Warning("Cannot read registry state before {Version}", version);
                     break;
                 case < FAssetRegistryVersionType.FixedTags:
-                {
-                    var nameTableReader = new FNameTableArchiveReader(Ar, header);
-                    Load(nameTableReader);
-                    break;
-                }
+                    {
+                        var nameTableReader = new FNameTableArchiveReader(Ar, header);
+                        Load(nameTableReader);
+                        break;
+                    }
                 default:
-                {
-                    var reader = new FAssetRegistryReader(Ar, header);
-                    Load(reader);
-                    break;
-                }
+                    {
+                        var reader = new FAssetRegistryReader(Ar, header);
+                        Load(reader);
+                        break;
+                    }
             }
         }
 
         private void Load(FAssetRegistryArchive Ar)
         {
-            PreallocatedAssetDataBuffers = Ar.ReadArray(() => new FAssetData(Ar));
+            PreallocatedAssetDataBuffers.AddRange(Ar.ReadArray(() => new FAssetData(Ar)));
 
             if (Ar.Header.Version < FAssetRegistryVersionType.RemovedMD5Hash)
                 return; // Just ignore the rest of this for now.
@@ -56,10 +56,9 @@ namespace CUE4Parse.UE4.AssetRegistry
             if (Ar.Header.Version < FAssetRegistryVersionType.AddedDependencyFlags)
             {
                 var localNumDependsNodes = Ar.Read<int>();
-                PreallocatedDependsNodeDataBuffers = new FDependsNode[localNumDependsNodes];
                 for (var i = 0; i < localNumDependsNodes; i++)
                 {
-                    PreallocatedDependsNodeDataBuffers[i] = new FDependsNode(i);
+                    PreallocatedDependsNodeDataBuffers.Add(new FDependsNode(i));
                 }
                 if (localNumDependsNodes > 0)
                 {
@@ -71,10 +70,9 @@ namespace CUE4Parse.UE4.AssetRegistry
                 var dependencySectionSize = Ar.Read<long>();
                 var dependencySectionEnd = Ar.Position + dependencySectionSize;
                 var localNumDependsNodes = Ar.Read<int>();
-                PreallocatedDependsNodeDataBuffers = new FDependsNode[localNumDependsNodes];
                 for (var i = 0; i < localNumDependsNodes; i++)
                 {
-                    PreallocatedDependsNodeDataBuffers[i] = new FDependsNode(i);
+                    PreallocatedDependsNodeDataBuffers.Add(new FDependsNode(i));
                 }
                 if (localNumDependsNodes > 0)
                 {
@@ -83,7 +81,7 @@ namespace CUE4Parse.UE4.AssetRegistry
                 Ar.Position = dependencySectionEnd;
             }
 
-            PreallocatedPackageDataBuffers = Ar.ReadArray(() => new FAssetPackageData(Ar));
+            PreallocatedPackageDataBuffers.AddRange(Ar.ReadArray(() => new FAssetPackageData(Ar)));
         }
 
         private void LoadDependencies_BeforeFlags(FAssetRegistryArchive Ar)
@@ -101,12 +99,15 @@ namespace CUE4Parse.UE4.AssetRegistry
                 dependsNode.SerializeLoad(Ar, PreallocatedDependsNodeDataBuffers);
             }
         }
-    
-        public FAssetData[] GetByAssetClass(string assetClass) {
+
+        public FAssetData[] GetByAssetClass(string assetClass)
+        {
             var result = new List<FAssetData>();
 
-            foreach (var assetData in PreallocatedAssetDataBuffers) {
-                if (assetData.AssetClass.Text == assetClass) {
+            foreach (var assetData in PreallocatedAssetDataBuffers)
+            {
+                if (assetData.AssetClass.Text == assetClass)
+                {
                     result.Add(assetData);
                 }
             }

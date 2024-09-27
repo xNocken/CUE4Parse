@@ -407,6 +407,7 @@ namespace CUE4Parse.FileProvider
             }
 
             var umapPath = uassetPath.SubstringBeforeWithLast('.') + GameFile.Ue4PackageExtensions[1];
+            
             if (Files.TryGetValue(umapPath, out file))
             {
                 return true;
@@ -830,21 +831,21 @@ namespace CUE4Parse.FileProvider
         }
 
         #endregion
-        public List<UObject> FindObjectsByType(string type, string subFolder = "")
+        public List<UObject> FindObjectsByType(string type, string subFolder = "", string[]? namelist = null)
         {
-            return FindObjectsByTypeAsync<UObject>(type, subFolder).Result;
+            return FindObjectsByTypeAsync<UObject>(type, subFolder, namelist).Result;
         }
-        public List<T> FindObjectsByType<T>(string type, string subFolder = "") where T : UObject
+        public List<T> FindObjectsByType<T>(string type, string subFolder = "", string[]? namelist = null) where T : UObject
         {
-            return FindObjectsByTypeAsync<T>(type, subFolder).Result.ToList<T>();
-        }
-
-        public Task<List<UObject>> FindObjectsByTypeAsync(string type, string subFolder = "")
-        {
-            return FindObjectsByTypeAsync<UObject>(type, subFolder);
+            return FindObjectsByTypeAsync<T>(type, subFolder, namelist).Result.ToList<T>();
         }
 
-        public async Task<List<T>> FindObjectsByTypeAsync<T>(string type, string subFolder = "") where T : UObject
+        public Task<List<UObject>> FindObjectsByTypeAsync(string type, string subFolder = "", string[]? namelist = null)
+        {
+            return FindObjectsByTypeAsync<UObject>(type, subFolder, namelist);
+        }
+
+        public async Task<List<T>> FindObjectsByTypeAsync<T>(string type, string subFolder = "", string[]? namelist = null) where T : UObject
         {
             if (MappingsContainer?.MappingsForGame == null)
             {
@@ -857,6 +858,11 @@ namespace CUE4Parse.FileProvider
 
             foreach (var asset in _assetRegistry.PreallocatedAssetDataBuffers)
             {
+                if (namelist != null && !namelist.Contains(asset.AssetName.Text))
+                {
+                    continue;
+                }
+
                 var fixedPath = FixPath(asset.ObjectPath);
 
                 if (!fixedPath.StartsWith(subFolder))
@@ -922,16 +928,27 @@ namespace CUE4Parse.FileProvider
                 return _assetRegistry;
             }
 
-            var assetReader = CreateReader($"{InternalGameName}/AssetRegistry.bin");
+            _assetRegistry = new FAssetRegistryState();
 
-            if (assetReader == null)
+            foreach (var file in Files.Where(x => x.Key.ToLower().StartsWith($"{InternalGameName}/AssetRegistry".ToLower()) && x.Key.EndsWith(".bin")))
             {
-                Log.Error("Failed to load AssetRegistry.bin");
+                try
+                {
 
-                return null;
+                    var archive = CreateReader(file.Key);
+
+                    if (archive == null)
+                    {
+                        continue;
+                    }
+
+                    _assetRegistry.Parse(archive);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Failed to load asset registry from {0}", file.Key);
+                }
             }
-
-            _assetRegistry = new FAssetRegistryState(assetReader);
 
             return _assetRegistry;
         }

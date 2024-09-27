@@ -344,7 +344,7 @@ namespace CUE4Parse.FileProvider
         /// <param name="type">The type (full or partial) of the assets to find</param>
         /// <param name="subFolder">The subfolder to search in</param>
         /// <returns>All matching objects</returns>
-        public List<UObject> FindObjectsByType(string type, string subFolder = "");
+        public List<UObject> FindObjectsByType(string type, string subFolder = "", string[]? namelist = null);
         /// <summary>
         /// Asynchronusly loads all objects from the Package at the passed path
         /// </summary>

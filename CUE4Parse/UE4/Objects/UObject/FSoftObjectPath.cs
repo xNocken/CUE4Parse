@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CUE4Parse.FileProvider;
@@ -50,13 +51,21 @@ namespace CUE4Parse.UE4.Objects.UObject
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryLoad(out UExport export)
         {
-            var provider = Owner?.Provider;
-            if (provider == null || AssetPathName.IsNone || string.IsNullOrEmpty(AssetPathName.Text))
+            try
+            {
+                var provider = Owner?.Provider;
+                if (provider == null || AssetPathName.IsNone || string.IsNullOrEmpty(AssetPathName.Text))
+                {
+                    export = default;
+                    return false;
+                }
+                return TryLoad(provider, out export);
+            }
+            catch (Exception e)
             {
                 export = default;
                 return false;
             }
-            return TryLoad(provider, out export);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -67,7 +67,7 @@ public abstract class AbstractUePackage : UObject, IPackage
         return obj;
     }
 
-    protected UObject ConstructObjectNew(UStruct? struc)
+    protected UObject ConstructObjectNew(UStruct? struc, EObjectFlags flags = EObjectFlags.RF_NoFlags)
     {
         UObject? obj = null;
         var current = struc;
@@ -80,7 +80,7 @@ public abstract class AbstractUePackage : UObject, IPackage
                 lastAvailable = current;
 
                 // We know this is a class defined in code at this point
-                obj = scriptClass.ConstructObject();
+                obj = scriptClass.ConstructObject(flags);
                 if (obj != null)
                     break;
             }

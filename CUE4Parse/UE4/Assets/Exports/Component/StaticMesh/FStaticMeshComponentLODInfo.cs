@@ -17,7 +17,7 @@ public struct FPaintedVertex
 
     public FPaintedVertex(FArchive Ar)
     {
-        Position = new FVector(Ar);
+        Position = Ar.Read<FVector>();
 
         if (FRenderingObjectVersion.Get(Ar) < FRenderingObjectVersion.Type.IncreaseNormalPrecision)
         {
@@ -25,7 +25,7 @@ public struct FPaintedVertex
         }
         else
         {
-            Normal = new FVector4(Ar);
+            Normal = Ar.Read<FVector4>();
         }
 
         Color = Ar.Read<FColor>();
@@ -36,6 +36,7 @@ public struct FPaintedVertex
 public class FStaticMeshComponentLODInfo
 {
     private const byte OverrideColorsStripFlag = 1;
+    public readonly FGuid OriginalMapBuildDataId;
     public readonly FGuid MapBuildDataId;
     public readonly FPaintedVertex[]? PaintedVertices;
     public readonly FColorVertexBuffer? OverrideVertexColors;
@@ -46,6 +47,10 @@ public class FStaticMeshComponentLODInfo
         if (!stripFlags.IsDataStrippedForServer())
         {
             MapBuildDataId = Ar.Read<FGuid>();
+            if (Ar.Game >= EGame.GAME_UE5_5)
+            {
+                OriginalMapBuildDataId = Ar.Read<FGuid>();
+            }
         }
 
         if (!stripFlags.IsClassDataStripped(OverrideColorsStripFlag))

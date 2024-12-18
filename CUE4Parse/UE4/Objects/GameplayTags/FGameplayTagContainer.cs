@@ -35,7 +35,19 @@ public readonly struct FGameplayTagContainer : IUStruct, IEnumerable<FGameplayTa
 
     public bool HasTag(FGameplayTag tagToCheck)
     {
-        return tagToCheck.IsValid() && GameplayTags.Any(it => it.TagName.PlainText.ToLower().StartsWith(tagToCheck.TagName.PlainText.ToLower()));
+        return tagToCheck.IsValid() && GameplayTags.Any(it => {
+            var lowercaseIt = it.TagName.PlainText.ToLower();
+            var lowercaseTagToCheck = tagToCheck.TagName.PlainText.ToLower();
+
+            // if direct match
+            if (lowercaseIt == lowercaseTagToCheck)
+            {
+                return true;
+            }
+            
+            // if parent match. e.g. "A.B.C" is parent of "A.B.C.D". "A.B.C" is not parent of "A.B.CD"
+            return lowercaseIt.StartsWith(lowercaseTagToCheck) && lowercaseIt.StartsWith($"{lowercaseTagToCheck}.");
+        });
     }
 
     public bool HasAny(FGameplayTagContainer containerToCheck)
